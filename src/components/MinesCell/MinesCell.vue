@@ -2,8 +2,10 @@
   <div
     class="cell"
     :class="{
-    'cell--mined': props.value === 'mine'
-  }"
+      'cell--closed': props.status === 'closed',
+      'cell--mined': props.status === 'opened' && props.value === 'mine',
+      'cell--opened': props.status === 'opened'
+    }"
     @click.prevent="onClick"
     @contextmenu.prevent
   >
@@ -20,6 +22,7 @@
 import { TCellStatus, TCellValue } from '@/models/cell.model'
 
 interface IMinesCellProps {
+  id: number,
   value: TCellValue,
   status: TCellStatus
   coords: {
@@ -39,14 +42,27 @@ const onClick = () => {
 
 <style lang="scss" scoped>
 .cell {
-  background-color: lightgray;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+
 }
 
 .cell--mined {
   background-color: red;
+}
+
+.cell--closed {
+  background-color: lightgray;
+  border: 2px outset black;
+}
+
+.cell--opened {
+  background-color: #efeded;
+  border: 2px solid black;
 }
 
 .cell__number {
