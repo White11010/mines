@@ -3,23 +3,23 @@
     class="cell"
     :class="{
       'cell--closed': props.status === 'closed',
-      'cell--mined': props.status === 'opened' && props.value === 'mine',
       'cell--opened': props.status === 'opened'
     }"
     @click.prevent="onClick"
     @contextmenu.prevent
   >
     <p
-      v-if="typeof props.value === 'number'"
+      v-if="props.status === 'opened'"
       class="cell__number"
     >
-      {{ props.value }}
+      {{ getCellImage }}
     </p>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { TCellStatus, TCellValue } from '@/models/cell.model'
+import { computed } from 'vue'
 
 interface IMinesCellProps {
   id: number,
@@ -38,6 +38,12 @@ const emit = defineEmits(['click'])
 const onClick = () => {
   emit('click', props)
 }
+
+const getCellImage = computed(() => {
+  if (props.value === 'empty') return ''
+  if (props.value === 'mine') return 'M'
+  return props.value
+})
 </script>
 
 <style lang="scss" scoped>
@@ -49,10 +55,6 @@ const onClick = () => {
   height: 30px;
   box-sizing: border-box;
 
-}
-
-.cell--mined {
-  background-color: red;
 }
 
 .cell--closed {
