@@ -1,23 +1,24 @@
 <template>
-<div
-  class="mines__field field"
->
-  <MinesCell
-    v-for="(cell, index) in cellsList.flat()"
-    :key="index"
-    v-bind="cell"
-    @click="onCellClick"
-  />
-</div>
+  <div
+    class="mines__field field"
+  >
+    <MinesCell
+      v-for="(cell, index) in cellsList.flat()"
+      :key="index"
+      v-bind="cell"
+      @click:left="onCellClick"
+      @click:right="onCellRightClick"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { reactive } from 'vue'
-import sampleSize from 'lodash.samplesize'
 import MinesCell from '@/components/MinesCell/MinesCell.vue'
-import { ICell, TCellNumber, TCellStatus, TCellValue } from '@/models/cell.model'
+import { ICell, TCellStatus, TCellValue } from '@/models/cell.model'
 import { TGameStatus } from '@/models/game-status.model'
 import { generateMines, generateNumbers } from '@/utils/generate-functions'
+import { mutateNeighborCells } from '@/utils/find-cells-functions'
 
 // props
 interface IMinesFieldProps {
@@ -26,6 +27,7 @@ interface IMinesFieldProps {
   width: number,
   height: number,
 }
+
 const props = defineProps<IMinesFieldProps>()
 
 // emits
@@ -53,12 +55,50 @@ const onCellClick = (targetCell: ICell) => {
     generateMines(cellsList, targetCell)
     generateNumbers(cellsList, props.width, props.height)
     emit('changeGameState', 'playing')
+    cellsList[targetCell.coords.y][targetCell.coords.x].status = 'opened'
+    if (cellsList[targetCell.coords.y][targetCell.coords.x].value === 'empty') openEmptyArea(targetCell)
     return
   }
 
   if (targetCell.status === 'closed') {
-    // const cell = cellsList.find((cellsRow: ICell) => cell.id === targetCell.id);
+    cellsList[targetCell.coords.y][targetCell.coords.x].status = 'opened'
+    if (targetCell.value === 'empty') openEmptyArea(targetCell)
   }
+}
+
+const onCellRightClick = (targetCell: ICell) => {
+  if (targetCell.status === 'closed') {
+    cellsList[targetCell.coords.y][targetCell.coords.x].status = 'flagged'
+  }
+}
+
+const openEmptyArea = (startEmptyCell: ICell) => {
+  const cb = (cell: ICell) => {
+    if (cell.status === 'opened') return
+
+    cell.status = 'opened'
+
+    if (cell.value === 'empty') {
+      mutateNeighborCells(
+        cellsList,
+        cell,
+        cell.coords.y,
+        cell.coords.x,
+        props.width,
+        props.height,
+        cb)
+    }
+  }
+
+  mutateNeighborCells(
+    cellsList,
+    startEmptyCell,
+    startEmptyCell.coords.y,
+    startEmptyCell.coords.x,
+    props.width,
+    props.height,
+    cb
+  )
 }
 </script>
 

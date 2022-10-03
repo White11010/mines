@@ -1,16 +1,13 @@
 <template>
   <div
     class="cell"
-    :class="{
-      'cell--closed': props.status === 'closed',
-      'cell--opened': props.status === 'opened'
-    }"
-    @click.prevent="onClick"
-    @contextmenu.prevent
+    :class="props.status === 'closed' ? 'cell--closed' : 'cell--opened'"
+    @click.prevent="onLeftClick"
+    @contextmenu.prevent="onRightClick"
   >
     <p
-      v-if="props.status === 'opened'"
-      class="cell__number"
+      v-if="showImage"
+      class="cell__image"
     >
       {{ getCellImage }}
     </p>
@@ -33,13 +30,22 @@ interface IMinesCellProps {
 
 const props = defineProps<IMinesCellProps>()
 
-const emit = defineEmits(['click'])
+const emit = defineEmits(['click:left', 'click:right'])
 
-const onClick = () => {
-  emit('click', props)
+const onLeftClick = () => {
+  emit('click:left', props)
 }
 
+const onRightClick = () => {
+  emit('click:right', props)
+}
+
+const showImage = computed(() => {
+  return props.status === 'opened' || props.status === 'flagged'
+})
+
 const getCellImage = computed(() => {
+  if (props.status === 'flagged') return 'F'
   if (props.value === 'empty') return ''
   if (props.value === 'mine') return 'M'
   return props.value
@@ -64,10 +70,10 @@ const getCellImage = computed(() => {
 
 .cell--opened {
   background-color: #efeded;
-  border: 2px solid black;
+  border: 1px inset #5d5c5c;
 }
 
-.cell__number {
+.cell__image {
   line-height: 100%;
   font-weight: 700;
   font-family: sans-serif;
