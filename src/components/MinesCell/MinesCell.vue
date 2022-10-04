@@ -5,18 +5,28 @@
     @click.prevent="onLeftClick"
     @contextmenu.prevent="onRightClick"
   >
-    <p
+    <img
       v-if="showImage"
       class="cell__image"
-    >
-      {{ getCellImage }}
-    </p>
+      :src="getCellImage"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { TCellStatus, TCellValue } from '@/models/cell.model'
 import { computed } from 'vue'
+
+import oneNumberImage from '@/assets/images/1.svg'
+import twoNumberImage from '@/assets/images/2.svg'
+import threeNumberImage from '@/assets/images/3.svg'
+import fourNumberImage from '@/assets/images/4.svg'
+import fiveNumberImage from '@/assets/images/5.svg'
+import sixNumberImage from '@/assets/images/6.svg'
+import sevenNumberImage from '@/assets/images/7.svg'
+import eightNumberImage from '@/assets/images/8.svg'
+import mineImage from '@/assets/images/mine.svg'
+import flagImage from '@/assets/images/flag.svg'
 
 interface IMinesCellProps {
   id: number,
@@ -41,14 +51,25 @@ const onRightClick = () => {
 }
 
 const showImage = computed(() => {
-  return props.status === 'opened' || props.status === 'flagged'
+  return (props.status === 'opened' || props.status === 'flagged') && props.value !== 'empty'
 })
 
 const getCellImage = computed(() => {
-  if (props.status === 'flagged') return 'F'
-  if (props.value === 'empty') return ''
-  if (props.value === 'mine') return 'M'
-  return props.value
+  if (props.status === 'flagged') return flagImage
+
+  const cellValueImageMap = {
+    1: oneNumberImage,
+    2: twoNumberImage,
+    3: threeNumberImage,
+    4: fourNumberImage,
+    5: fiveNumberImage,
+    6: sixNumberImage,
+    7: sevenNumberImage,
+    8: eightNumberImage,
+    mine: mineImage
+  }
+
+  return cellValueImageMap[props.value]
 })
 </script>
 
@@ -60,7 +81,7 @@ const getCellImage = computed(() => {
   width: 30px;
   height: 30px;
   box-sizing: border-box;
-
+  cursor: auto;
 }
 
 .cell--closed {
@@ -74,8 +95,7 @@ const getCellImage = computed(() => {
 }
 
 .cell__image {
-  line-height: 100%;
-  font-weight: 700;
-  font-family: sans-serif;
+  width: 80%;
+  height: 80%;
 }
 </style>

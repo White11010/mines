@@ -62,6 +62,10 @@ const onCellClick = (targetCell: ICell) => {
 
   if (targetCell.status === 'closed') {
     cellsList[targetCell.coords.y][targetCell.coords.x].status = 'opened'
+    if (cellsList[targetCell.coords.y][targetCell.coords.x].value === 'mine') {
+      emit('changeGameState', 'lost')
+      return
+    }
     if (targetCell.value === 'empty') openEmptyArea(targetCell)
   }
 }
@@ -69,6 +73,10 @@ const onCellClick = (targetCell: ICell) => {
 const onCellRightClick = (targetCell: ICell) => {
   if (targetCell.status === 'closed') {
     cellsList[targetCell.coords.y][targetCell.coords.x].status = 'flagged'
+  }
+
+  if (targetCell.status === 'flagged') {
+    cellsList[targetCell.coords.y][targetCell.coords.x].status = 'closed'
   }
 }
 
